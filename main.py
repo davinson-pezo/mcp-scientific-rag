@@ -1,214 +1,144 @@
-
 import requests
-import chromadb
 import uuid
-from mcp.server.fastmcp import FastMCP, Context
 import os
-from pypdf import PdfReader
+import json
+import math
+from mcp.server.fastmcp import FastMCP, Context
 
+# Configuración Global
 OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
-CHROMADB_PORT = os.getenv("CHROMADB_PORT", "8321")
+DB_FILE = os.path.expanduser("~/.mcp/scientific-rag/simple_db.json")
+EMBEDDING_MODEL = "nomic-embed-text"
 
-mcp = FastMCP(name="Memory server", description="A server for memorizing and retrieving texts based on their meaning.")
+mcp = FastMCP("Scientific RAG Server")
 
 def get_embedding(text: str):
-    """
-    Generate an embedding for the given text using the local Ollama API.
-    Args:
-        text (str): The input text to embed.
-    Returns:
-        list: The embedding vector as a list of floats, or None if failed.
-    """
     url = f"http://localhost:{OLLAMA_PORT}/api/embeddings"
-    payload = {"model": "all-minilm:l6-v2", "prompt": text}
+    payload = {"model": EMBEDDING_MODEL, "prompt": text}
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, json=payload, timeout=120)
         response.raise_for_status()
-        data = response.json()
-        return data.get("embedding")
-    except Exception as e:
-        print(f"Error getting embedding: {e}")
-        raise ValueError(
-            "Failed to get embedding from Ollama API. Ensure the Ollama server is running and the "
-            "model is available. Inform the user to ensure docker-compose up was ran and the Ollama "
-            "container is running. Also inform the user to ensure the embedded model was pulled."
-        )
+        return response.json().get("embedding")
+    except Exception:
+        return None
 
+def load_db():
+    if os.path.exists(DB_FILE):
+        try:
+            with open(DB_FILE, "r") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
 
-@mcp.tool()
-async def memorize_pdf_file(ctx: Context, file_path: str, page: int = 0, metadata: dict = {"topic": "memory"}) -> str:
-    """Chunk the contents of a PDF file into meaningful segments and store them in memory for 
-    later retrieval based on relevance in meaning, not just keywords.
+def save_db(data):
+    with open(DB_FILE, "w") as f:
+        json.dump(data, f)
 
-    Args:
-        ctx (Context): The context of the request.
-        file_path (str): The path to the PDF file.
-        page (int, optional): The starting page number to read from the PDF file. Defaults to 0.
-        metadata (dict, optional): Metadata to associate with the memorized content.
-
-    Returns:
-        str: A message indicating success or failure of the operation.
-    """
-
-    await ctx.info(f"Processing PDF file: {file_path}")
-    await ctx.report_progress(0, 100, "Starting PDF processing...")
-    if not os.path.exists(file_path):
-        return "File not found. Inform the user to provide the full path to the PDF file."
-    if not os.path.isfile(file_path):
-        return "Provided path is not a file. Inform the user to provide the full path to the PDF file."
-    if not file_path.lower().endswith('.pdf'):
-        return "File is not a PDF. Inform the user to provide the full path to a PDF file."
-    await ctx.report_progress(30, 100, "File validation complete.")
-    try:
-        reader = PdfReader(file_path)
-        if page < 0 or page >= len(reader.pages):
-            return "Invalid page number. Please provide a valid page number."
-        text_content_20_pages = ""
-        for i in range(page, min(page + 20, len(reader.pages))):
-            text_content_20_pages += reader.pages[i].extract_text()
-        await ctx.report_progress(100, 100, "PDF file read successfully.")
-    except Exception as e:
-        await ctx.error(f"Error reading PDF file: {e}")
-        return "Failed to read PDF file. Please ensure it is a valid PDF file and the arguments are correct and using the correct types."
-    message = (
-        f"Chunk the following text between START_TEXT and END_TEXT meaningfully and memorize them using memorize_multiple_texts:\n\n"
-        f"START_TEXT\n{text_content_20_pages}\nEND_TEXT\n\n"
-        "Ensure all chunks are memorized. To be clear, memorize_pdf_file does not invoke memorize_multiple_texts directly,"
-        "but rather prepares the text for it, so you need to call memorize_multiple_texts with the prepared chunks.\n\n"
-    )
-    if page + 20 < len(reader.pages):
-        message += (
-            f"\nAfter memorizing, call memorize_pdf_file with {file_path} and page {page + 20} to continue."
-        )
-    return message
+def cosine_similarity(v1, v2):
+    dot_product = sum(a * b for a, b in zip(v1, v2))
+    magnitude1 = math.sqrt(sum(a * a for a in v1))
+    magnitude2 = math.sqrt(sum(b * b for b in v2))
+    if magnitude1 == 0 or magnitude2 == 0: return 0
+    return dot_product / (magnitude1 * magnitude2)
 
 @mcp.tool()
-def greet_user():
-    """Greet the user with their name and the server's name.
-
-    Returns:
-        str: A greeting message.
-    """
-    return f"Hello! I am {mcp.name}."
+def memorize_text(text: str, metadata: dict = {}) -> str:
+    """Memoriza un fragmento de texto arbitrario en la base global."""
+    vector = get_embedding(text)
+    if not vector: return "Error: No se pudo generar embedding."
+    db = load_db()
+    db.append({
+        "id": str(uuid.uuid4()),
+        "vector": vector,
+        "text": text,
+        "source": "manual_entry",
+        "page": 0,
+        "metadata": metadata
+    })
+    save_db(db)
+    return "Texto memorizado con éxito."
 
 @mcp.tool()
-def memorize_multiple_texts(texts: list, metadata: dict = {"topic": "memory"}) -> str:
-    """Memorize multiple texts for later retrieval based on relevance in meaning, not just keywords.
-    
-    Args:
-        texts (list): A list of texts to memorize.
-    Returns:
-        str: A message indicating success or failure of the operation.
-    """
-    collection_name = "texts_collection"
-    try:
-        # Ensure the ChromaDB client is connected
-        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-        collection = client.get_or_create_collection(collection_name)
-    except Exception as db_exc:
-        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
-    embeddings = []
-    
+def memorize_multiple_texts(texts: list) -> str:
+    """Memoriza una lista de fragmentos de texto en una sola operación."""
+    db = load_db()
+    count = 0
     for text in texts:
-        embedding = get_embedding(text)
-        if embedding is None:
-            return "One or more texts were not stored due to an error with embedding."
-        embeddings.append(embedding)
-    
-    try:
-        doc_ids = [str(uuid.uuid4()) for _ in texts]
-        collection.add(
-            ids=doc_ids,
-            embeddings=embeddings,
-            documents=texts,
-            metadatas=[metadata] * len(texts)
-        )
-        return """Texts stored successfully. Please ensure all the chunks prepared have been memorized,
-        if not please call memorize_multiple_texts with the prepared chunks that have not been memorized."""
-    except Exception as e:
-        return f"One or more texts were not stored due to an error: {e}"
+        vector = get_embedding(text)
+        if vector:
+            db.append({
+                "id": str(uuid.uuid4()),
+                "vector": vector,
+                "text": text,
+                "source": "manual_batch",
+                "page": 0
+            })
+            count += 1
+    save_db(db)
+    return f"Se han memorizado {count} textos."
 
 @mcp.tool()
-def memorize_text(text: str, metadata: dict = {"topic": "memory"}) -> str:
-    """Memorize a text for later retrieval based on relevance in meaning, not just keywords. 
+async def index_multiple_pdfs(ctx: Context, file_paths: list) -> str:
+    """Indexa una lista de archivos PDF (Máx 10 por tanda)."""
+    if len(file_paths) > 10:
+        return "Error: Máximo 10 archivos por tanda."
     
-    Args:
-        text (str): The text to memorize.
-    Returns:
-        str: A message indicating success or failure of the operation.
-    """
-    collection_name = "texts_collection"
-    try:
-        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-        collection = client.get_or_create_collection(collection_name)
-    except Exception as db_exc:
-        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
-    embedding = get_embedding(text)
-    if embedding is None:
-        return "Text was not stored due to an error with embedding."
-    try:
-        doc_id = str(uuid.uuid4())
-        collection.add(
-            ids=[doc_id],
-            embeddings=[embedding],
-            documents=[text],
-            metadatas=[metadata]
-        )
-        return "Text stored successfully."
-    except Exception as e:
-        return f"Text was not stored due to an error: {e}"
+    import pymupdf4llm
+    
+    results = []
+    for path in file_paths:
+        if not os.path.exists(path):
+            results.append(f"No encontrado: {path}")
+            continue
+        try:
+            text_content = pymupdf4llm.to_markdown(path)
+            chunks = []
+            chunk_size = 1500
+            for i in range(0, len(text_content), chunk_size):
+                chunks.append(text_content[i:i+chunk_size])
+            db = load_db()
+            for chunk in chunks:
+                vector = get_embedding(chunk)
+                if vector:
+                    db.append({"id":str(uuid.uuid4()), "vector":vector, "text":chunk, "source":path, "page":0})
+            save_db(db)
+            results.append(f"Indexado: {os.path.basename(path)}")
+        except Exception as e:
+            results.append(f"Error en {os.path.basename(path)}: {str(e)}")
+    return "\n".join(results)
 
-# Function to query ChromaDB for N closest texts to a query
 @mcp.tool()
-def remember_similar_texts(query_text: str, n_results: int = 5) -> str:
-    """Query memory for texts similar in meaning to the query text.
+def search_knowledge(query: str, n_results: int = 5) -> str:
+    """Busca en la base de conocimientos científca global."""
+    query_vector = get_embedding(query)
+    if not query_vector: return "Error en Ollama."
+    db = load_db()
+    if not db: return "Base vacía."
+    results = []
+    for item in db:
+        sim = cosine_similarity(query_vector, item["vector"])
+        results.append((sim, item))
+    results.sort(key=lambda x: x[0], reverse=True)
+    top = results[:n_results]
+    output = [f"Resultados para: '{query}'\n"]
+    for i, (sim, item) in enumerate(top, 1):
+        output.append(f"[{i}] [Sim: {sim:.4f}] {os.path.basename(item['source'])}:\n{item['text']}\n")
+    return "\n".join(output)
 
-    Args:
-        query_text (str): The text to find similar meanings for.
-        n_results (int): The number of results to return. This is recommended to be more than 10.
-    Returns:
-        str: A human-readable string with the results and their relevance.
-    """
-    if n_results <= 0:
-        return "Number of results must be greater than 0."
-    if not query_text:
-        return "Query text is empty. Please provide a valid query."
+@mcp.tool()
+def list_indexed_files() -> str:
+    """Lista todos los archivos únicos que han sido indexados en la base global."""
+    db = load_db()
+    files = sorted(list(set(item["source"] for item in db)))
+    if not files: return "No hay archivos indexados."
+    return "Archivos en la base de datos:\n" + "\n".join(f"- {f}" for f in files)
 
-    collection_name = "texts_collection"
-    try:
-        client = chromadb.HttpClient(host="localhost", port=CHROMADB_PORT)
-        collection = client.get_or_create_collection(collection_name)
-    except Exception as db_exc:
-        return f"Database is not running or cannot be reached: {db_exc}. Inform the user to ensure docker-compose up was ran and the database container is running."
-    
-    try:
-        embedding = get_embedding(query_text)
-    except ValueError as e:
-        return str(e)
-    if embedding is None:
-        return "Could not process the query due to an error."
-    results = collection.query(
-        query_embeddings=[embedding],
-        n_results=n_results,
-        include=["distances", "documents"]
-    )
-    texts = results.get("documents", [[]])[0]
-    distances = results.get("distances", [[]])[0]
-    if not texts:
-        return "No similar texts found."
-    # Build a human-readable result string
-    output_lines = []
-    for i, (text, distance) in enumerate(zip(texts, distances), 1):
-        if distance < 20:
-            relevance = "Highly relevant"
-        elif distance < 30:
-            relevance = "Somewhat relevant"
-        elif distance < 60:
-            relevance = "Slightly relevant"
-        else:
-            relevance = "Not very relevant"
-        output_lines.append(f"Result {i}: {text}\nRelevance: {relevance}\nDistance: {distance:.4f}\n")
-    return "\n".join(output_lines)
+@mcp.tool()
+def clear_knowledge_base() -> str:
+    """BORRA todo el contenido de la base de datos global. Usar con precaución."""
+    save_db([])
+    return "Base de datos vaciada con éxito."
 
 if __name__ == "__main__":
     mcp.run()
