@@ -101,7 +101,7 @@ async def index_multiple_pdfs(ctx: Context, file_paths: list) -> str:
             for chunk in chunks:
                 vector = get_embedding(chunk)
                 if vector:
-                    db.append({"id":str(uuid.uuid4()), "vector":vector, "text":chunk, "source":path, "page":0})
+                    db.append({"id":str(uuid.uuid4()), "vector":vector, "text":chunk, "source":os.path.basename(path), "page":0})
             save_db(db)
             results.append(f"Indexado: {os.path.basename(path)}")
         except Exception as e:

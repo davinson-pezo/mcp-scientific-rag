@@ -14,12 +14,16 @@ class MockContext:
 
 async def main():
     ctx = MockContext()
-    papers = [
-        os.path.expanduser('~/Documents/references/Lu_2021_DeepONet.pdf'),
-        os.path.expanduser('~/Documents/references/Jagtap_2020_XPINN.pdf'),
-        os.path.expanduser('~/Documents/references/Shukla_2021_ParallelPINN.pdf'),
-        os.path.expanduser('~/Documents/references/Jiang_2024_Maxwell_DeepONet.pdf')
-    ]
+    # Define the path to your scientific papers (PDFs)
+    # You can place them in a 'data' folder inside the project or use your own reference folder.
+    data_dir = os.path.expanduser('~/Documents/references') # Update this path to your PDF folder
+    
+    if not os.path.exists(data_dir):
+        print(f"[WARNING] Directory not found: {data_dir}")
+        papers = []
+    else:
+        # Automatically find some PDFs in the directory for testing
+        papers = [os.path.join(data_dir, f) for f in os.listdir(data_dir) if f.endswith('.pdf')][:5]
     print("Iniciando indexación...")
     result = await index_multiple_pdfs(ctx, papers)
     print("Resultado indexación:")
