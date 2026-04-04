@@ -22,18 +22,18 @@ Standard RAG implementations often fail in scientific workflows because:
 
 ## 🚀 Improvements & Origin
 
-Este proyecto es una evolución de alto rendimiento de [mcp-rag-local](https://github.com/renl/mcp-rag-local). Hemos rediseñado la arquitectura original para cubrir las necesidades específicas de la **comunidad científica**, donde la precisión en PDFs complejos y la privacidad local son innegociables.
+This project is a high-performance evolution of [mcp-rag-local](https://github.com/renl/mcp-rag-local). We have re-engineered the original architecture to address the specific needs of the **scientific community**, where precision in complex PDFs and local privacy are non-negotiable.
 
-### 🔬 Mejoras Clave para Ciencia
+### 🔬 Core Scientific Enhancements
 
-1. **Extracción Avanzada (`pymupdf4llm`)**:
-   - A diferencia de los extractores estándar, `pymupdf4llm` convierte tablas, fórmulas y estructuras de documentos científicos directamente en **Markdown limpio**, ideal para que el LLM lo entienda sin errores.
-2. **Embeddings de Alta Calidad (`nomic-embed-text`)**:
-   - Integración nativa con **Ollama**. Este modelo supera a los modelos ligeros tradicionales, ofreciendo una ventana de contexto mucho mayor y una comprensión semántica superior para términos técnicos densos.
-3. **Base de Datos JSON Portable**:
-   - Hemos eliminado la dependencia pesada de ChromaDB/Docker. Usamos un sistema de vectores basado en JSON nativo de Python: **ligero, rápido y sin configuraciones complejas**, ideal para investigadores que necesitan portabilidad.
-4. **Procesamiento por Lotes**:
-   - Soporte nativo para indexar hasta 10 artículos científicos simultáneamente con fragmentación (chunking) optimizada de 1500 caracteres.
+1. **State-of-the-Art Extraction (`pymupdf4llm`)**:
+   - Unlike standard extractors, `pymupdf4llm` converts tables, formulas, and scientific document structures directly into **Clean Markdown**, making it ideal for LLMs to ingest technical data with zero transcription errors.
+2. **High-Quality Embeddings (`nomic-embed-text`)**:
+   - Native integration with **Ollama**. This model significantly outperforms traditional lightweight models, offering a much larger context window and superior semantic understanding for dense technical terms.
+3. **Portable JSON Vector Database**:
+   - We have removed the heavy dependency on ChromaDB/Docker. By using a native Python JSON vector system, the project remains **lightweight, fast, and zero-config**, perfect for researchers who need cross-platform portability.
+4. **Enhanced Batch Processing**:
+   - Native support for indexing up to 10 scientific papers simultaneously with optimized 1500-character chunking.
 
 ---
 
@@ -68,7 +68,7 @@ ollama pull nomic-embed-text
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/mcp-scientific-rag.git
+git clone https://github.com/davinson-pezo/mcp-scientific-rag.git
 cd mcp-scientific-rag
 
 # Sync dependencies
