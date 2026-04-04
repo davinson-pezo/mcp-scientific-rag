@@ -77,7 +77,7 @@ uv sync
 
 ### 4. Configure your AI Client
 
-Add this to your MCP configuration (e.g., Claude Desktop, Cursor, or Antigravity settings):
+Add this to your MCP configuration (e.g., Claude Desktop, Cursor, VS Code with Cline/Roo-Code, or Antigravity settings):
 
 ```json
 "mcp-scientific-rag": {
