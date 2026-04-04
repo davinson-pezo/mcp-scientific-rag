@@ -104,7 +104,7 @@ Add this to your MCP configuration (e.g., Claude Desktop, Cursor, VS Code, or An
 
 If this tool has been helpful to your research and you'd like to support its development, feel free to buy me a coffee!
 
-[![PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?business=davinson@gmail.com&no_recurring=0&item_name=Scientific+RAG+Support&currency_code=USD)
+[![PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?business=davinson@gmail.com&no_recurring=0&item_name=Scientific+RAG+Support&currency_code=EUR)
 
 ---
 
