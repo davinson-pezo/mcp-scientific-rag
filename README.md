@@ -100,6 +100,14 @@ Add this to your MCP configuration (e.g., Claude Desktop, Cursor, VS Code, or An
 
 ---
 
+## ☕ Support the Project
+
+If this tool has been helpful to your research and you'd like to support its development, feel free to buy me a coffee!
+
+[![PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.com/donate?business=davinson@gmail.com&no_recurring=0&item_name=Scientific+RAG+Support&currency_code=USD)
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
