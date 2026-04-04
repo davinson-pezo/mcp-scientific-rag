@@ -11,6 +11,7 @@ A high-performance, private, and local Retrieval-Augmented Generation (RAG) syst
 ## 🔬 The Problem: Standard RAG vs. Scientific Reality
 
 Standard RAG implementations often fail in scientific workflows because:
+
 - **Complex PDFs**: Traditional parsers struggle with multi-column layouts, tables, and mathematical formulas.
 - **Privacy**: Researchers often deal with sensitive, unpublished data that cannot be sent to third-party clouds.
 - **Context Density**: Scientific texts require higher-quality embeddings to distinguish between nuanced technical terms.
@@ -19,18 +20,20 @@ Standard RAG implementations often fail in scientific workflows because:
 
 ---
 
-## 🚀 Why this version? (Improvements over `mcp-rag-local`)
+## 🚀 Improvements & Origin
 
-This project is a highly evolved fork of the original `mcp-rag-local`, featuring several critical upgrades for research:
+Este proyecto es una evolución de alto rendimiento de [mcp-rag-local](https://github.com/renl/mcp-rag-local). Hemos rediseñado la arquitectura original para cubrir las necesidades específicas de la **comunidad científica**, donde la precisión en PDFs complejos y la privacidad local son innegociables.
 
-1.  **State-of-the-Art Extraction (`pymupdf4llm`)**:
-    - Converts complex PDF structures (tables, math, scientific blocks) directly into **Clean Markdown**, optimized for LLM comprehension.
-2.  **Superior Embeddings (`nomic-embed-text`)**:
-    - Powered by Ollama, this model offers a significantly larger context window and better semantic understanding of technical language compared to standard lightweight models.
-3.  **Portable JSON Vector Database**:
-    - Replaced the heavy ChromaDB dependency with a **lightweight, native JSON vector storage**. It's fast, zero-config, and works seamlessly across Mac, Windows, and Linux.
-4.  **Advanced Batch Processing**:
-    - Native support for indexing multiple large papers simultaneously with automatic optimized chunking.
+### 🔬 Mejoras Clave para Ciencia
+
+1. **Extracción Avanzada (`pymupdf4llm`)**:
+   - A diferencia de los extractores estándar, `pymupdf4llm` convierte tablas, fórmulas y estructuras de documentos científicos directamente en **Markdown limpio**, ideal para que el LLM lo entienda sin errores.
+2. **Embeddings de Alta Calidad (`nomic-embed-text`)**:
+   - Integración nativa con **Ollama**. Este modelo supera a los modelos ligeros tradicionales, ofreciendo una ventana de contexto mucho mayor y una comprensión semántica superior para términos técnicos densos.
+3. **Base de Datos JSON Portable**:
+   - Hemos eliminado la dependencia pesada de ChromaDB/Docker. Usamos un sistema de vectores basado en JSON nativo de Python: **ligero, rápido y sin configuraciones complejas**, ideal para investigadores que necesitan portabilidad.
+4. **Procesamiento por Lotes**:
+   - Soporte nativo para indexar hasta 10 artículos científicos simultáneamente con fragmentación (chunking) optimizada de 1500 caracteres.
 
 ---
 
@@ -51,15 +54,18 @@ The server provides the following capabilities to your AI assistant:
 ## ⚙️ Quick Start
 
 ### 1. Requirements
+
 - [Ollama](https://ollama.com/) (Running locally)
 - [uv](https://astral.sh/uv) (Python package manager)
 
 ### 2. Prepare the Embedding Model
+
 ```bash
 ollama pull nomic-embed-text
 ```
 
 ### 3. Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/your-username/mcp-scientific-rag.git
@@ -70,6 +76,7 @@ uv sync
 ```
 
 ### 4. Configure your AI Client
+
 Add this to your MCP configuration (e.g., Claude Desktop, Cursor, or Antigravity settings):
 
 ```json
@@ -87,10 +94,12 @@ Add this to your MCP configuration (e.g., Claude Desktop, Cursor, or Antigravity
 ---
 
 ## 🛡️ Privacy & Security
+
 - **100% Local**: No data leaves your machine. Embeddings and searches are processed locally via Ollama.
 - **Sanitized Metadata**: The system is designed to avoid storing absolute local paths, ensuring your repository remains safe for public sharing.
 
 ---
 
 ## 📄 License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
