@@ -4,19 +4,20 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Supported-orange.svg)](https://modelcontextprotocol.io/)
 
-A high-performance, private, and local Retrieval-Augmented Generation (RAG) system specifically optimized for **scientific research**. Built on the Model Context Protocol (MCP), it enables AI agents to interact with dense technical PDFs, tables, and complex scientific notation with unprecedented accuracy.
+A high-performance, 100% private, and local Retrieval-Augmented Generation (RAG) system engineered specifically for **scientific research**. Built on the Model Context Protocol (MCP), it transforms your local machine into a centralized AI knowledge base, enabling assistants like Claude or Cursor to instantly search, extract, and synthesize insights from dense technical PDFs, tables, and complex scientific notation.
 
 ---
 
-## 🔬 The Problem: Standard RAG vs. Scientific Reality
+## 🔬 Why Scientists Need a Specialized RAG
 
-Standard RAG implementations often fail in scientific workflows because:
+Researchers today are drowning in literature, but standard AI tools and generic RAG implementations fundamentally fail in scientific workflows:
 
-- **Complex PDFs**: Traditional parsers struggle with multi-column layouts, tables, and mathematical formulas.
-- **Privacy**: Researchers often deal with sensitive, unpublished data that cannot be sent to third-party clouds.
-- **Context Density**: Scientific texts require higher-quality embeddings to distinguish between nuanced technical terms.
+1. **The PDF Parsing Nightmare**: Scientific papers use complex multi-column layouts, intricate tables, and heavy mathematical formulas. Standard extractors turn these into unreadable gibberish.
+2. **Strict Data Privacy**: Researchers constantly handle sensitive patient data, unpublished manuscripts, or proprietary chemical formulas. Uploading these to third-party APIs (like OpenAI or Anthropic clouds) is a massive security risk or outright policy violation.
+3. **High Context Density**: Generic embedding models cannot distinguish between highly nuanced technical jargon, leading to poor semantic search results and AI hallucinations.
+4. **Scattered Knowledge**: Literature is usually scattered across dozens of project folders, making it impossible to "connect the dots" across different disciplines over time.
 
-**MCP Scientific RAG** solves this by providing a specialized local infrastructure tailored for the scientific community.
+**MCP Scientific RAG** solves this by providing a specialized, fully local infrastructure. It uses state-of-the-art layout-aware extractors (`pymupdf4llm`) and high-dimensional embeddings (`nomic-embed-text` via Ollama) to give your AI assistant flawless, secure, and permanent memory of your research.
 
 ---
 
