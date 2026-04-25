@@ -4,7 +4,7 @@
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Supported-orange.svg)](https://modelcontextprotocol.io/)
 
-A high-performance, 100% private, and local Retrieval-Augmented Generation (RAG) system engineered specifically for **scientific research**. Built on the Model Context Protocol (MCP), it transforms your local machine into a centralized AI knowledge base, enabling assistants like Claude or Cursor to instantly search, extract, and synthesize insights from dense technical PDFs, tables, and complex scientific notation.
+A high-performance, 100% private, and local Retrieval-Augmented Generation (RAG) system engineered specifically for **scientific research**. Built on the Model Context Protocol (MCP), it transforms your local machine into a centralized AI knowledge base, enabling assistants like Claude, Cursor, Antigravity, VS Code, Hermes-agent, or OpenClaw to instantly search, extract, and synthesize insights from dense technical PDFs, tables, and complex scientific notation.
 
 ---
 
@@ -107,7 +107,7 @@ uv sync
 
 ### 4. Configure your AI Client
 
-Add this to your MCP configuration (e.g., Claude Desktop, Cursor, VS Code, or Antigravity settings):
+Add this to your MCP configuration (e.g., Claude Desktop, Cursor, Antigravity, VS Code, Hermes-agent, or OpenClaw settings):
 
 ```json
 "mcp-scientific-rag": {
