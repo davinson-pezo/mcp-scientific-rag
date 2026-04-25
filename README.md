@@ -68,7 +68,7 @@ ollama pull nomic-embed-text
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/mcp-scientific-rag.git
+git clone https://github.com/davinson-pezo/mcp-scientific-rag.git
 cd mcp-scientific-rag
 
 # Sync dependencies
