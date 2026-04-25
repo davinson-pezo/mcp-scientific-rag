@@ -32,6 +32,7 @@ def load_db():
     return []
 
 def save_db(data):
+    os.makedirs(os.path.dirname(DB_FILE), exist_ok=True)
     with open(DB_FILE, "w") as f:
         json.dump(data, f)
 

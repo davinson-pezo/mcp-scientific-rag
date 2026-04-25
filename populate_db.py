@@ -2,7 +2,7 @@ import os
 import sys
 
 # Import functions from main.py
-sys.path.append(os.path.expanduser('~/.mcp/scientific-rag'))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from main import index_multiple_pdfs, search_knowledge
 import asyncio
 
