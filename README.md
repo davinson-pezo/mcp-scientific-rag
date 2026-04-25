@@ -41,32 +41,26 @@ Unlike traditional RAG systems that require maintaining a separate vector databa
 
 You can ask your LLM to index PDFs scattered across your computer (Downloads, Research folders, etc.), and the server will centralize all extracted text and embeddings into a single `~/.mcp/scientific-rag/simple_db.json` file. This allows your AI to cross-reference concepts from a paper you read in January with a completely different project you are working on in April.
 
-```mermaid
-graph TD
-    subgraph Your Local Machine
-        LLM["🤖 AI Assistant (Claude/Cursor)"]
-        
-        subgraph Scattered Files
-            P1["📄 /Project_A/paper.pdf"]
-            P2["📄 /Downloads/study.pdf"]
-        end
-        
-        MCP["⚙️ MCP Scientific RAG Server"]
-        Ollama["🧠 Ollama (nomic-embed-text)"]
-        DB[("🗄️ Centralized Global Database\n(~/.mcp/scientific-rag/simple_db.json)")]
-
-        P1 -.-> LLM
-        P2 -.-> LLM
-        LLM -- "1. Finds PDFs & calls index_multiple_pdfs" --> MCP
-        
-        MCP -- "2. Extracts Markdown (pymupdf4llm)" --> MCP
-        MCP -- "3. Requests Embeddings" --> Ollama
-        Ollama -- "4. Returns Vectors" --> MCP
-        
-        MCP -- "5. Stores all knowledge centrally" --> DB
-        
-        LLM -- "6. Uses search_knowledge across all projects" --> DB
-    end
+```text
++----------------------+        1. Finds PDFs       +----------------------+
+|   Scattered PDFs     | -------------------------> |    AI Assistant      |
+| (Project A, Dwnlds)  |                            | (Claude/Cursor/etc)  |
++----------------------+                            +---------+------------+
+                                                              |
+                                 2. Calls index_multiple_pdfs |
+                                      or search_knowledge     |
+                                                              v
++----------------------+        3. Gets Vectors     +----------------------+
+|        Ollama        | <------------------------> |   MCP RAG Server     |
+|  (nomic-embed-text)  |                            |  (pymupdf4llm)       |
++----------------------+                            +---------+------------+
+                                                              |
+                                        4. Stores / Retrieves |
+                                                              v
+                                                    +----------------------+
+                                                    | Centralized Database |
+                                                    |  (simple_db.json)    |
+                                                    +----------------------+
 ```
 
 ---
