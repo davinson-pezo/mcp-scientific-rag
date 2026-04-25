@@ -35,6 +35,40 @@ This project is a high-performance evolution of [mcp-rag-local](https://github.c
 4. **Enhanced Batch Processing**:
    - Native support for indexing up to 10 scientific papers simultaneously with optimized 1500-character chunking.
 
+## 🧠 Architecture: The Centralized Brain
+
+Unlike traditional RAG systems that require maintaining a separate vector database for every project folder, this MCP server acts as a **single, global knowledge base** for your entire machine. 
+
+You can ask your LLM to index PDFs scattered across your computer (Downloads, Research folders, etc.), and the server will centralize all extracted text and embeddings into a single `~/.mcp/scientific-rag/simple_db.json` file. This allows your AI to cross-reference concepts from a paper you read in January with a completely different project you are working on in April.
+
+```mermaid
+graph TD
+    subgraph Your Local Machine
+        LLM["🤖 AI Assistant (Claude/Cursor)"]
+        
+        subgraph Scattered Files
+            P1["📄 /Project_A/paper.pdf"]
+            P2["📄 /Downloads/study.pdf"]
+        end
+        
+        MCP["⚙️ MCP Scientific RAG Server"]
+        Ollama["🧠 Ollama (nomic-embed-text)"]
+        DB[("🗄️ Centralized Global Database\n(~/.mcp/scientific-rag/simple_db.json)")]
+
+        P1 -.-> LLM
+        P2 -.-> LLM
+        LLM -- "1. Finds PDFs & calls index_multiple_pdfs" --> MCP
+        
+        MCP -- "2. Extracts Markdown (pymupdf4llm)" --> MCP
+        MCP -- "3. Requests Embeddings" --> Ollama
+        Ollama -- "4. Returns Vectors" --> MCP
+        
+        MCP -- "5. Stores all knowledge centrally" --> DB
+        
+        LLM -- "6. Uses search_knowledge across all projects" --> DB
+    end
+```
+
 ---
 
 ## 🛠️ MCP Tools Exposed
