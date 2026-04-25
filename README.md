@@ -48,6 +48,7 @@ The server provides the following capabilities to your AI assistant:
 | `list_indexed_files` | Inventory of all documents currently in the local memory. |
 | `clear_knowledge_base` | Securely wipes the local database. |
 | `memorize_text` | Store arbitrary research notes, snippets, or findings directly into memory. |
+| `memorize_multiple_texts`| Memorize a list of text snippets or research notes in a single batch operation. |
 
 ---
 
